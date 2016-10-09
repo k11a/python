@@ -1,4 +1,4 @@
-from tkinter import *
+import tkinter
 import random
 
 # Globals
@@ -102,11 +102,11 @@ class Snake(object):
             self.vector = self.mapping[event.keysym]
 
 # Setting up window
-root = Tk()
+root = tkinter.Tk()
 root.title("Best Game by MSV")
 
 
-c = Canvas(root, width=WIDTH, height=HEIGHT, bg="#003300")
+c = tkinter.Canvas(root, width=WIDTH, height=HEIGHT, bg="#003300")
 c.grid()
 # catch keypressing
 c.focus_set()
