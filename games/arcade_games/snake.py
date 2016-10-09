@@ -6,6 +6,9 @@ WIDTH = 800
 HEIGHT = 600
 SEG_SIZE = 40
 IN_GAME = True
+# Win game if snake take 50% of screen
+SNAKE_LENGTH_WIN_GAME = WIDTH/SEG_SIZE*HEIGHT/SEG_SIZE*0.5
+WIN_GAME = False
 
 
 # Helper functions
@@ -18,12 +21,21 @@ def create_block():
                           posx+SEG_SIZE, posy+SEG_SIZE,
                           fill="red")
 
+def create_percent():
+    global prcnt
+    prcnt = c.create_text(WIDTH/2, 20,
+                      text=str(int(len(s.segments)/SNAKE_LENGTH_WIN_GAME*100))+"%",
+                      font="Arial 20 bold",
+                      fill="blue")
 
 def main():
     """ Handles game process """
     global IN_GAME
+    global WIN_GAME
     if IN_GAME:
         s.move()
+        c.delete(prcnt)
+        create_percent()
         head_coords = c.coords(s.segments[-1].instance)
         x1, y1, x2, y2 = head_coords
         # Check for collision with gamefield edges
@@ -31,31 +43,32 @@ def main():
             IN_GAME = False
         # Eating apples
         elif head_coords == c.coords(BLOCK):
-            s.add_segment()
-            s.add_segment()
-            s.add_segment()
-            s.add_segment()
-            s.add_segment()
-            s.add_segment()
-            s.add_segment()
-            s.add_segment()
-            s.add_segment()
-            s.add_segment()
-            s.add_segment()
-            s.add_segment()
+            for index in range(1,12):
+                s.add_segment()
             c.delete(BLOCK)
             create_block()
+        # Wining
+        elif len(s.segments)>SNAKE_LENGTH_WIN_GAME:
+            IN_GAME = False
+            WIN_GAME = True
         # Self-eating
         else:
             for index in range(len(s.segments)-1):
                 if head_coords == c.coords(s.segments[index].instance):
                     IN_GAME = False
         root.after(200, main)
+
     # Not IN_GAME -> stop game and print message
     else:
-        c.create_text(WIDTH/2, HEIGHT/2,
+        if WIN_GAME:
+            c.create_text(WIDTH/2, HEIGHT/2,
+                      text="Congratulations\nYou have WON!!!",
+                      font="Arial 30 bold",
+                      fill="red")
+        else:
+            c.create_text(WIDTH/2, HEIGHT/2,
                       text="GAME OVER!",
-                      font="Arial 20",
+                      font="Arial 20 bold",
                       fill="red")
 
 
@@ -104,7 +117,7 @@ class Snake(object):
 # Setting up window
 root = tkinter.Tk()
 root.title("Best Game by MSV")
-
+root.geometry('%dx%d+%d+%d' % (WIDTH, HEIGHT, 200, 100))
 
 c = tkinter.Canvas(root, width=WIDTH, height=HEIGHT, bg="#003300")
 c.grid()
@@ -115,6 +128,7 @@ segments = [Segment(SEG_SIZE, SEG_SIZE),
             Segment(SEG_SIZE*2, SEG_SIZE),
             Segment(SEG_SIZE*3, SEG_SIZE)]
 s = Snake(segments)
+create_percent()
 # Reaction on keypress
 c.bind("<KeyPress>", s.change_direction)
 
