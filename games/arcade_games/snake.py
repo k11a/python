@@ -4,7 +4,7 @@ import random
 # Globals
 WIDTH = 800
 HEIGHT = 600
-SEG_SIZE = 20
+SEG_SIZE = 40
 IN_GAME = True
 
 
@@ -32,6 +32,17 @@ def main():
         # Eating apples
         elif head_coords == c.coords(BLOCK):
             s.add_segment()
+            s.add_segment()
+            s.add_segment()
+            s.add_segment()
+            s.add_segment()
+            s.add_segment()
+            s.add_segment()
+            s.add_segment()
+            s.add_segment()
+            s.add_segment()
+            s.add_segment()
+            s.add_segment()
             c.delete(BLOCK)
             create_block()
         # Self-eating
@@ -39,7 +50,7 @@ def main():
             for index in range(len(s.segments)-1):
                 if head_coords == c.coords(s.segments[index].instance):
                     IN_GAME = False
-        root.after(100, main)
+        root.after(200, main)
     # Not IN_GAME -> stop game and print message
     else:
         c.create_text(WIDTH/2, HEIGHT/2,
@@ -92,7 +103,7 @@ class Snake(object):
 
 # Setting up window
 root = Tk()
-root.title("PythonicWay Snake")
+root.title("Best Game by MSV")
 
 
 c = Canvas(root, width=WIDTH, height=HEIGHT, bg="#003300")
