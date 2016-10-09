@@ -5,9 +5,13 @@ import random
 WIDTH = 800
 HEIGHT = 600
 SEG_SIZE = 40
+percent_snake_of_screen_for_win = 80
+ADD_SNAKE_PER_APPLE = 20
+PAUSE_BETWEEN_FRAME = 150
+
 IN_GAME = True
 # Win game if snake take 50% of screen
-SNAKE_LENGTH_WIN_GAME = WIDTH/SEG_SIZE*HEIGHT/SEG_SIZE*0.5
+SNAKE_LENGTH_WIN_GAME = WIDTH/SEG_SIZE*HEIGHT/SEG_SIZE*percent_snake_of_screen_for_win/100
 WIN_GAME = False
 
 
@@ -43,10 +47,19 @@ def main():
             IN_GAME = False
         # Eating apples
         elif head_coords == c.coords(BLOCK):
-            for index in range(1,12):
+            for index in range(1,ADD_SNAKE_PER_APPLE):
                 s.add_segment()
-            c.delete(BLOCK)
-            create_block()
+            index2 = 0
+            whileend = False
+            while index2 < 4 and not whileend:
+                whileend = True
+                index2 += 1
+                c.delete(BLOCK)
+                create_block()
+                for index in range(len(s.segments)-1):
+                    if c.coords(BLOCK) == c.coords(s.segments[index].instance):
+                        whileend = False
+
         # Wining
         elif len(s.segments)>SNAKE_LENGTH_WIN_GAME:
             IN_GAME = False
@@ -56,7 +69,8 @@ def main():
             for index in range(len(s.segments)-1):
                 if head_coords == c.coords(s.segments[index].instance):
                     IN_GAME = False
-        root.after(200, main)
+        s.save_vector()
+        root.after(PAUSE_BETWEEN_FRAME, main)
 
     # Not IN_GAME -> stop game and print message
     else:
@@ -70,6 +84,7 @@ def main():
                       text="GAME OVER!",
                       font="Arial 20 bold",
                       fill="red")
+
 
 
 class Segment(object):
@@ -89,6 +104,7 @@ class Snake(object):
                         "Up": (0, -1), "Left": (-1, 0)}
         # initial movement direction
         self.vector = self.mapping["Right"]
+        self.prev_vector = (1, 0)
 
     def move(self):
         """ Moves the snake with the specified vector"""
@@ -111,8 +127,19 @@ class Snake(object):
 
     def change_direction(self, event):
         """ Changes direction of snake """
-        if event.keysym in self.mapping:
-            self.vector = self.mapping[event.keysym]
+#        if event.keysym in self.mapping:
+#            self.vector = self.mapping[event.keysym]
+        if event.keysym == "Left" and not self.prev_vector == (1,0):
+            self.vector = (-1, 0)
+        elif event.keysym == "Right" and not self.prev_vector == (-1,0):
+            self.vector = (1, 0)
+        elif event.keysym == "Up" and not self.prev_vector == (0,1):
+            self.vector = (0, -1)
+        elif event.keysym == "Down" and not self.prev_vector == (0,-1):
+            self.vector = (0, 1)
+
+    def save_vector(self):
+        self.prev_vector = self.vector
 
 # Setting up window
 root = tkinter.Tk()
