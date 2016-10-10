@@ -1,5 +1,6 @@
 import tkinter
 import random
+import sys
 
 # Globals
 WIDTH = 800
@@ -7,11 +8,12 @@ HEIGHT = 600
 SEG_SIZE = 40
 percent_snake_of_screen_for_win = 70
 ADD_SNAKE_PER_APPLE = 10
-PAUSE_BETWEEN_FRAME = 200
+PAUSE_BETWEEN_FRAME = 150
 BUFFER_VECTOR_SIZE = 10
 
 IN_GAME = True
 WIN_GAME = False
+SPEED = 5
 SNAKE_LENGTH_WIN_GAME = WIDTH/SEG_SIZE*HEIGHT/SEG_SIZE*percent_snake_of_screen_for_win/100
 
 
@@ -19,6 +21,7 @@ SNAKE_LENGTH_WIN_GAME = WIDTH/SEG_SIZE*HEIGHT/SEG_SIZE*percent_snake_of_screen_f
 def create_block():
     """ Creates an apple to be eaten """
     global BLOCK
+    global SPEED
     posx = SEG_SIZE * random.randint(1, (WIDTH-SEG_SIZE) / SEG_SIZE)
     posy = SEG_SIZE * random.randint(1, (HEIGHT-SEG_SIZE) / SEG_SIZE)
     BLOCK = c.create_oval(posx, posy,
@@ -28,7 +31,7 @@ def create_block():
 def create_percent():
     global prcnt
     prcnt = c.create_text(WIDTH/2, 20,
-                      text=str(int(len(s.segments)/SNAKE_LENGTH_WIN_GAME*100)) + "%    SPEED:" + str(int(1000/PAUSE_BETWEEN_FRAME)),
+                      text=str(int(len(s.segments)/SNAKE_LENGTH_WIN_GAME*100)) + "%    SPEED:" + str(SPEED),
                       font="Arial 20 bold",
                       fill="blue")
 
@@ -38,6 +41,7 @@ def main():
     global WIN_GAME
     global PAUSE_BETWEEN_FRAME
     if IN_GAME:
+        s.get_vector_buffer()
         s.move()
         c.delete(prcnt)
         create_percent()
@@ -48,7 +52,7 @@ def main():
             IN_GAME = False
         # Eating apples
         elif head_coords == c.coords(BLOCK):
-            for index in range(1,ADD_SNAKE_PER_APPLE):
+            for index in range(ADD_SNAKE_PER_APPLE):
                 s.add_segment()
             index2 = 0
             whileend = False
@@ -70,7 +74,6 @@ def main():
             for index in range(len(s.segments)-1):
                 if head_coords == c.coords(s.segments[index].instance):
                     IN_GAME = False
-        s.clk()
         root.after(PAUSE_BETWEEN_FRAME, main)
 
     # Not IN_GAME -> stop game and print message
@@ -126,28 +129,37 @@ class Snake(object):
         y = last_seg[3] - SEG_SIZE
         self.segments.insert(0, Segment(x, y))
 
-    def append_buffer_controll(self, event):
+    def keypress(self, event):
         global PAUSE_BETWEEN_FRAME
-# Awesome hack for filter move back by use abs and ord func.
+        global SPEED
+# Add key to buffer
+# Awesome trick for filter back move (eat himself) using abs and ord functions.
+# Me know what this bad for big programs.
         if len(self.vector_buffer) < BUFFER_VECTOR_SIZE + 1\
                             and event.keysym in self.mapping\
                             and abs(ord(self.vector_buffer[-1][1])-ord(event.keysym[1]))>5:
             self.vector_buffer.append(event.keysym)
 # Speed controll
-        if ord(event.keysym[0]) > 47 and ord(event.keysym[0]) < 58:
-            if ord(event.keysym[0]) == 48:
-                PAUSE_BETWEEN_FRAME = 70 + 10 * 50
+        elif ord(event.keysym[0]) >= ord('0') and ord(event.keysym[0]) <= ord('9'):
+            if ord(event.keysym[0]) == ord('0'):
+                SPEED=int(10)
+                PAUSE_BETWEEN_FRAME = int(50)
             else:
-                PAUSE_BETWEEN_FRAME = 70 + (ord(event.keysym[0]) - 48) * 50
+                SPEED=ord(event.keysym[0])-ord('0')
+                PAUSE_BETWEEN_FRAME = int(1000/SPEED-50)
+# Exit Game by Esc
+        elif event.keysym == "Escape":
+            sys.exit()
 
-    def clk(self):
+    def get_vector_buffer(self):
         if len(self.vector_buffer) > 1:
             self.vector = self.mapping[self.vector_buffer[1]]
             self.vector_buffer[0:2] = [self.vector_buffer[1]]
 
 # Setting up window
 root = tkinter.Tk()
-root.title("Best Game by MSV")
+root.title("Snake")
+# move windows
 root.geometry('%dx%d+%d+%d' % (WIDTH, HEIGHT, 200, 100))
 
 c = tkinter.Canvas(root, width=WIDTH, height=HEIGHT, bg="#003300")
@@ -161,7 +173,7 @@ segments = [Segment(SEG_SIZE, SEG_SIZE),
 s = Snake(segments)
 create_percent()
 # Reaction on keypress
-c.bind("<KeyPress>", s.append_buffer_controll)
+c.bind("<KeyPress>", s.keypress)
 
 create_block()
 main()
