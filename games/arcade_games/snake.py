@@ -5,14 +5,14 @@ import random
 WIDTH = 800
 HEIGHT = 600
 SEG_SIZE = 40
-percent_snake_of_screen_for_win = 80
-ADD_SNAKE_PER_APPLE = 20
-PAUSE_BETWEEN_FRAME = 150
+percent_snake_of_screen_for_win = 70
+ADD_SNAKE_PER_APPLE = 10
+PAUSE_BETWEEN_FRAME = 200
+BUFFER_VECTOR_SIZE = 10
 
 IN_GAME = True
-# Win game if snake take 50% of screen
-SNAKE_LENGTH_WIN_GAME = WIDTH/SEG_SIZE*HEIGHT/SEG_SIZE*percent_snake_of_screen_for_win/100
 WIN_GAME = False
+SNAKE_LENGTH_WIN_GAME = WIDTH/SEG_SIZE*HEIGHT/SEG_SIZE*percent_snake_of_screen_for_win/100
 
 
 # Helper functions
@@ -28,7 +28,7 @@ def create_block():
 def create_percent():
     global prcnt
     prcnt = c.create_text(WIDTH/2, 20,
-                      text=str(int(len(s.segments)/SNAKE_LENGTH_WIN_GAME*100))+"%",
+                      text=str(int(len(s.segments)/SNAKE_LENGTH_WIN_GAME*100)) + "%    SPEED:" + str(int(1000/PAUSE_BETWEEN_FRAME)),
                       font="Arial 20 bold",
                       fill="blue")
 
@@ -36,6 +36,7 @@ def main():
     """ Handles game process """
     global IN_GAME
     global WIN_GAME
+    global PAUSE_BETWEEN_FRAME
     if IN_GAME:
         s.move()
         c.delete(prcnt)
@@ -69,7 +70,7 @@ def main():
             for index in range(len(s.segments)-1):
                 if head_coords == c.coords(s.segments[index].instance):
                     IN_GAME = False
-        s.save_vector()
+        s.clk()
         root.after(PAUSE_BETWEEN_FRAME, main)
 
     # Not IN_GAME -> stop game and print message
@@ -104,7 +105,7 @@ class Snake(object):
                         "Up": (0, -1), "Left": (-1, 0)}
         # initial movement direction
         self.vector = self.mapping["Right"]
-        self.prev_vector = (1, 0)
+        self.vector_buffer = ["Right"]
 
     def move(self):
         """ Moves the snake with the specified vector"""
@@ -125,21 +126,24 @@ class Snake(object):
         y = last_seg[3] - SEG_SIZE
         self.segments.insert(0, Segment(x, y))
 
-    def change_direction(self, event):
-        """ Changes direction of snake """
-#        if event.keysym in self.mapping:
-#            self.vector = self.mapping[event.keysym]
-        if event.keysym == "Left" and not self.prev_vector == (1,0):
-            self.vector = (-1, 0)
-        elif event.keysym == "Right" and not self.prev_vector == (-1,0):
-            self.vector = (1, 0)
-        elif event.keysym == "Up" and not self.prev_vector == (0,1):
-            self.vector = (0, -1)
-        elif event.keysym == "Down" and not self.prev_vector == (0,-1):
-            self.vector = (0, 1)
+    def append_buffer_controll(self, event):
+        global PAUSE_BETWEEN_FRAME
+# Awesome hack for filter move back by use abs and ord func.
+        if len(self.vector_buffer) < BUFFER_VECTOR_SIZE + 1\
+                            and event.keysym in self.mapping\
+                            and abs(ord(self.vector_buffer[-1][1])-ord(event.keysym[1]))>5:
+            self.vector_buffer.append(event.keysym)
+# Speed controll
+        if ord(event.keysym[0]) > 47 and ord(event.keysym[0]) < 58:
+            if ord(event.keysym[0]) == 48:
+                PAUSE_BETWEEN_FRAME = 70 + 10 * 50
+            else:
+                PAUSE_BETWEEN_FRAME = 70 + (ord(event.keysym[0]) - 48) * 50
 
-    def save_vector(self):
-        self.prev_vector = self.vector
+    def clk(self):
+        if len(self.vector_buffer) > 1:
+            self.vector = self.mapping[self.vector_buffer[1]]
+            self.vector_buffer[0:2] = [self.vector_buffer[1]]
 
 # Setting up window
 root = tkinter.Tk()
@@ -157,7 +161,7 @@ segments = [Segment(SEG_SIZE, SEG_SIZE),
 s = Snake(segments)
 create_percent()
 # Reaction on keypress
-c.bind("<KeyPress>", s.change_direction)
+c.bind("<KeyPress>", s.append_buffer_controll)
 
 create_block()
 main()
