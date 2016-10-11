@@ -85,13 +85,13 @@ def main():
     else:
         if WIN_GAME:
             c.create_text(WIDTH/2, HEIGHT/2,
-                      text="Congratulations\nYou have WON!!!\nSpace - restart\nEsc - exit",
+                      text="Congratulations\nYou have WON!!!\n---\n0-9 - speed\nSpace - restart\nEsc - exit",
                       font="Arial 30 bold",
                       fill="red",
                       justify="center")
         else:
             c.create_text(WIDTH/2, HEIGHT/2,
-                      text="GAME OVER!\nSpace - restart\nEsc - exit",
+                      text="GAME OVER!\n---\n0-9 - speed\nSpace - restart\nEsc - exit",
                       font="Arial 20 bold",
                       fill="red",
                       justify="center")
@@ -170,7 +170,7 @@ class Snake(object):
 
 # Setting up window
 root = tkinter.Tk()
-root.title("Snake")
+root.title("ExtraSnake")
 # move windows
 root.geometry('%dx%d+%d+%d' % (WIDTH, HEIGHT, 200, 100))
 
