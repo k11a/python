@@ -1,6 +1,7 @@
 import tkinter
 import random
 import sys
+import os
 
 # Globals
 WIDTH = 800
@@ -8,12 +9,12 @@ HEIGHT = 600
 SEG_SIZE = 40
 percent_snake_of_screen_for_win = 70
 ADD_SNAKE_PER_APPLE = 10
-PAUSE_BETWEEN_FRAME = 150
+SPEED = 6
 BUFFER_VECTOR_SIZE = 10
 
 IN_GAME = True
 WIN_GAME = False
-SPEED = 5
+PAUSE_BETWEEN_FRAME = int(1000/SPEED-50)
 SNAKE_LENGTH_WIN_GAME = WIDTH/SEG_SIZE*HEIGHT/SEG_SIZE*percent_snake_of_screen_for_win/100
 
 
@@ -52,11 +53,13 @@ def main():
             IN_GAME = False
         # Eating apples
         elif head_coords == c.coords(BLOCK):
+# increase snake
             for index in range(ADD_SNAKE_PER_APPLE):
                 s.add_segment()
+# try add apple on freeplace
             index2 = 0
             whileend = False
-            while index2 < 4 and not whileend:
+            while index2 < 10 and not whileend:
                 whileend = True
                 index2 += 1
                 c.delete(BLOCK)
@@ -64,6 +67,7 @@ def main():
                 for index in range(len(s.segments)-1):
                     if c.coords(BLOCK) == c.coords(s.segments[index].instance):
                         whileend = False
+                        break
 
         # Wining
         elif len(s.segments)>SNAKE_LENGTH_WIN_GAME:
@@ -76,18 +80,21 @@ def main():
                     IN_GAME = False
         root.after(PAUSE_BETWEEN_FRAME, main)
 
+
     # Not IN_GAME -> stop game and print message
     else:
         if WIN_GAME:
             c.create_text(WIDTH/2, HEIGHT/2,
-                      text="Congratulations\nYou have WON!!!",
+                      text="Congratulations\nYou have WON!!!\nSpace - restart\nEsc - exit",
                       font="Arial 30 bold",
-                      fill="red")
+                      fill="red",
+                      justify="center")
         else:
             c.create_text(WIDTH/2, HEIGHT/2,
-                      text="GAME OVER!",
+                      text="GAME OVER!\nSpace - restart\nEsc - exit",
                       font="Arial 20 bold",
-                      fill="red")
+                      fill="red",
+                      justify="center")
 
 
 
@@ -150,6 +157,11 @@ class Snake(object):
 # Exit Game by Esc
         elif event.keysym == "Escape":
             sys.exit()
+# Restart
+        elif event.keysym == "space":
+            os.system('python3 snake.py')
+            sys.exit()
+
 
     def get_vector_buffer(self):
         if len(self.vector_buffer) > 1:
