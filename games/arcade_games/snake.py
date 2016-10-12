@@ -119,15 +119,12 @@ class Snake(object):
 
     def move(self):
         """ Moves the snake with the specified vector"""
-        for index in range(len(self.segments)-1):
-            segment = self.segments[index].instance
-            x1, y1, x2, y2 = c.coords(self.segments[index+1].instance)
-            c.coords(segment, x1, y1, x2, y2)
-
-        x1, y1, x2, y2 = c.coords(self.segments[-2].instance)
-        c.coords(self.segments[-1].instance,
-                 x1+self.vector[0]*SEG_SIZE, y1+self.vector[1]*SEG_SIZE,
-                 x2+self.vector[0]*SEG_SIZE, y2+self.vector[1]*SEG_SIZE)
+# add head segment
+        self.segments.append(Segment(c.coords(self.segments[-1].instance)[0] + self.vector[0]*SEG_SIZE,
+                                     c.coords(self.segments[-1].instance)[1] + self.vector[1]*SEG_SIZE))
+# del last segment
+        c.delete(self.segments[0].instance)
+        del self.segments[0]
 
     def add_segment(self):
         """ Adds segment to the snake """
