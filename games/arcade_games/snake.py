@@ -163,7 +163,7 @@ class Snake(object):
     def get_vector_buffer(self):
         if len(self.vector_buffer) > 1:
             self.vector = self.mapping[self.vector_buffer[1]]
-            self.vector_buffer[0:2] = [self.vector_buffer[1]]
+            del self.vector_buffer[0]
 
 # Setting up window
 root = tkinter.Tk()
