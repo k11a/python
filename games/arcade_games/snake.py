@@ -56,7 +56,7 @@ def main():
 # increase snake
             for index in range(ADD_SNAKE_PER_APPLE):
                 s.add_segment()
-# try add apple on freeplace
+# add apple on cover, try freeplace (no snake) in cycle
             index2 = 0
             whileend = False
             while index2 < 10 and not whileend:

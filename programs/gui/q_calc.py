@@ -6,7 +6,7 @@ __author__ = "Dmitriy Krasota aka g0t0wasd"
 # More at http://pythonicway.com/index.php/python-examples/python-gui-examples/14-python-tkinter-quadratic-equations
 
 
-from Tkinter import *
+from tkinter import *
 from math import sqrt
 
 def solver(a,b,c):
