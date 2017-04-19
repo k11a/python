@@ -50,6 +50,5 @@ def main(board):
         if counter == 9:
             print ("Ничья!")
             break
-    draw_board(board)
 
 main(board)

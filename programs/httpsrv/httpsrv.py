@@ -12,7 +12,7 @@ class MyServer(BaseHTTPRequestHandler):
         self.wfile.write("<html><head><title>Hi! How are You?</title></head>".encode())
         self.wfile.write("<body><p>This is a test.</p>".encode())
         self.wfile.write(("<p>You accessed path: %s</p>" % self.path).encode())
-        self.wfile.write("hdgghslkdhvouighosrxui</body></html>".encode())
+        self.wfile.write("</body></html>".encode())
 
 myServer = HTTPServer((hostName, hostPort), MyServer)
 print(time.asctime(), "Server Starts - %s:%s" % (hostName, hostPort))
